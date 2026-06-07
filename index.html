@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>课程作业管理器 | Course Assignment Manager</title>
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="智能课程作业管理器 - 专为大学生设计的高颜值、交互式作业与日程规划工具。支持AI协作开发声明、LocalStorage持久化和Chart.js图表自动统计。">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="dark-theme">
+  <!-- Decorative Ambient Gradients -->
+  <div class="ambient-glow bg-glow-1"></div>
+  <div class="ambient-glow bg-glow-2"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <i data-lucide="graduation-cap"></i>
+        </div>
+        <div class="logo-text">
+          <h1>智能课程作业管理器</h1>
+          <p>Smart Course Assignment Manager</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <!-- AI Co-pilot Badge -->
+        <div class="ai-badge">
+          <span class="ai-dot"></span>
+          <i data-lucide="sparkles"></i>
+          <span>AI Co-Pilot Active</span>
+        </div>
+        <!-- Theme Toggle -->
+        <button id="theme-toggle-btn" class="icon-btn" title="切换主题">
+          <i data-lucide="sun" class="sun-icon"></i>
+          <i data-lucide="moon" class="moon-icon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="app-main-grid">
+      
+      <!-- Left Column: Statistics & Dashboard Dashboard -->
+      <aside class="dashboard-sidebar">
+        <!-- Progress Summary Card -->
+        <section class="glass-card stats-summary-card">
+          <div class="card-header">
+            <h3><i data-lucide="trending-up"></i> 总体进度统计</h3>
+          </div>
+          <div class="stats-progress-container">
+            <div class="circular-progress-wrapper">
+              <svg class="circular-progress" viewBox="0 0 100 100">
+                <circle class="bg-circle" cx="50" cy="50" r="40"></circle>
+                <circle class="progress-circle" cx="50" cy="50" r="40" id="completion-gauge"></circle>
+              </svg>
+              <div class="progress-value">
+                <span id="completion-percentage">0%</span>
+                <small>已完成</small>
+              </div>
+            </div>
+            <div class="progress-details">
+              <div class="detail-item">
+                <span class="label">未完成作业</span>
+                <span class="value" id="stats-pending-count">0</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">已完成作业</span>
+                <span class="value" id="stats-completed-count">0</span>
+              </div>
+              <div class="detail-item">
+                <span class="label">总作业数量</span>
+                <span class="value text-primary" id="stats-total-count">0</span>
+              </div>
+            </div>
+          </div>
+          <div class="progress-bar-linear">
+            <div class="progress-bar-fill" id="linear-progress-fill"></div>
+          </div>
+        </section>
+
+        <!-- Time Estimator Card -->
+        <section class="glass-card time-card">
+          <div class="card-header">
+            <h3><i data-lucide="clock"></i> 学习时间预算 (Hours)</h3>
+          </div>
+          <div class="time-stats-grid">
+            <div class="time-stat-box">
+              <div class="time-stat-icon text-warning">
+                <i data-lucide="hourglass"></i>
+              </div>
+              <div>
+                <span class="time-stat-val" id="time-total-est">0h</span>
+                <p class="time-stat-lbl">计划总耗时</p>
+              </div>
+            </div>
+            <div class="time-stat-box">
+              <div class="time-stat-icon text-success">
+                <i data-lucide="check-circle-2"></i>
+              </div>
+              <div>
+                <span class="time-stat-val" id="time-completed-est">0h</span>
+                <p class="time-stat-lbl">已落实耗时</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Dynamic Charts Card -->
+        <section class="glass-card charts-card">
+          <div class="card-header">
+            <h3><i data-lucide="pie-chart"></i> 作业数据分析</h3>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="priorityChart"></canvas>
+          </div>
+          <div class="chart-separator"></div>
+          <div class="chart-wrapper">
+            <canvas id="courseChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Data Import/Export Operations -->
+        <section class="glass-card data-ops-card">
+          <div class="card-header">
+            <h3><i data-lucide="database"></i> 数据与备份</h3>
+          </div>
+          <div class="data-buttons">
+            <button id="export-btn" class="secondary-btn btn-sm">
+              <i data-lucide="download"></i> 导出 JSON 数据
+            </button>
+            <button id="import-btn-trigger" class="secondary-btn btn-sm">
+              <i data-lucide="upload"></i> 导入 JSON 数据
+            </button>
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+          </div>
+        </section>
+      </aside>
+
+      <!-- Right Column: Assignments Management Content -->
+      <section class="content-panel">
+        
+        <!-- Controls & Filters Bar -->
+        <div class="glass-card controls-bar">
+          <div class="search-box">
+            <i data-lucide="search"></i>
+            <input type="text" id="search-input" placeholder="搜索作业标题、课程或描述...">
+          </div>
+          
+          <div class="filters-container">
+            <div class="filter-group">
+              <label for="filter-course">课程</label>
+              <select id="filter-course">
+                <option value="all">所有课程</option>
+                <!-- Dynamic Course Options -->
+              </select>
+            </div>
+            
+            <div class="filter-group">
+              <label for="filter-priority">优先级</label>
+              <select id="filter-priority">
+                <option value="all">所有优先级</option>
+                <option value="high">高优先级</option>
+                <option value="medium">中优先级</option>
+                <option value="low">低优先级</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filter-status">状态</label>
+              <select id="filter-status">
+                <option value="all">所有状态</option>
+                <option value="pending">进行中 / 未开始</option>
+                <option value="completed">已完成</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="sort-by">排序</label>
+              <select id="sort-by">
+                <option value="deadline-asc">截止时间 (近➔远)</option>
+                <option value="deadline-desc">截止时间 (远➔近)</option>
+                <option value="priority-desc">优先级 (高➔低)</option>
+                <option value="est-desc">预估耗时 (多➔少)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Header with Quick Actions -->
+        <div class="section-title-bar">
+          <div class="title-left">
+            <h2>我的作业任务</h2>
+            <span class="badge" id="visible-tasks-count">0 个任务</span>
+          </div>
+          <button id="add-assignment-btn" class="primary-btn">
+            <i data-lucide="plus-circle"></i> 添加新作业
+          </button>
+        </div>
+
+        <!-- Assignment List Container -->
+        <div class="assignment-list" id="assignment-list-container">
+          <!-- Cards will be dynamically inserted here -->
+          
+          <!-- Empty State (Shown when no assignments match) -->
+          <div class="empty-state" id="empty-state-view">
+            <div class="empty-icon">
+              <i data-lucide="clipboard-list"></i>
+            </div>
+            <h3>暂无作业任务</h3>
+            <p>你可以点击上方“添加新作业”按钮来录入您的第一个课程任务，或者清除筛选条件。</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>智能课程作业管理器 &copy; 2026 - AI-Human Co-creation Project</p>
+      <p class="korean-note">프로그래밍언어특론 실습 과제 - Vibe Coding 협업 프로젝트</p>
+    </footer>
+  </div>
+
+  <!-- Modal Dialog: Add / Edit Assignment -->
+  <div class="modal-backdrop" id="assignment-modal">
+    <div class="modal-card glass-card">
+      <div class="modal-header">
+        <h3 id="modal-title">添加新作业</h3>
+        <button id="close-modal-btn" class="icon-btn close-btn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <form id="assignment-form" class="modal-form">
+        <input type="hidden" id="edit-assignment-id">
+        
+        <div class="form-row">
+          <div class="form-group flex-2">
+            <label for="form-title">作业名称 <span class="required">*</span></label>
+            <input type="text" id="form-title" placeholder="例如：编译原理课程大作业" required>
+          </div>
+          <div class="form-group flex-1">
+            <label for="form-course">课程名称 <span class="required">*</span></label>
+            <input type="text" id="form-course" placeholder="例如：编译原理" list="courses-datalist" required>
+            <datalist id="courses-datalist">
+              <!-- Dynamic options -->
+            </datalist>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-deadline">截止日期与时间 <span class="required">*</span></label>
+            <input type="datetime-local" id="form-deadline" required>
+          </div>
+          <div class="form-group">
+            <label for="form-priority">优先级 <span class="required">*</span></label>
+            <select id="form-priority" required>
+              <option value="high">🔥 高优先级</option>
+              <option value="medium" selected>⚡ 中优先级</option>
+              <option value="low">💤 低优先级</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-est">预计工时 (小时) <span class="required">*</span></label>
+            <input type="number" id="form-est" min="0.5" step="0.5" value="2" required>
+          </div>
+        </div>
+
+        <!-- Subtasks Section -->
+        <div class="form-group subtasks-form-section">
+          <label>子任务清单 (Subtasks)</label>
+          <div class="subtask-input-row">
+            <input type="text" id="new-subtask-input" placeholder="添加步骤，例如：查阅文献、编写核心算法、撰写报告...">
+            <button type="button" id="add-subtask-btn" class="secondary-btn">
+              <i data-lucide="plus"></i> 添加步骤
+            </button>
+          </div>
+          <ul class="subtask-temp-list" id="subtask-temp-list">
+            <!-- Dynamic temp subtasks -->
+          </ul>
+        </div>
+
+        <div class="form-group">
+          <label for="form-desc">作业详细描述</label>
+          <textarea id="form-desc" rows="4" placeholder="可以记录作业要求、GitHub 仓库链接、提交方式或参考文档等..."></textarea>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="cancel-modal-btn" class="secondary-btn">取消</button>
+          <button type="submit" id="save-modal-btn" class="primary-btn">
+            <i data-lucide="save"></i> 保存作业
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
