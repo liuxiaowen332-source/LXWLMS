@@ -87,11 +87,11 @@
 ## 7. 실행 화면(스크린샷) / 运行截图
 
 *실제 작동 화면 스크린샷입니다. (과제 제출 시 아래에 본인의 실행 화면을 캡처하여 업로드해 주세요.)*
-*以下为系统实际运行效果图（请在本地添加作业后自行截图并替换）。*
+*以下为系统实际运行效果图（请将您的 3 张截图命名为 image1.png, image2.png, image3.png 并放入 screenshots 文件夹中）。*
 
-| 메인 대시보드 및 통계 (다크 모드) / 数据主大盘 | 과제 추가 모달 및 마감일 분류 / 添加作业弹窗 |
-| :---: | :---: |
-| ![Main Dashboard](./screenshots/dashboard_dark.png) | ![Add Task Modal](./screenshots/add_task_modal.png) |
+| 메인 대시보드 / 数据主大盘 | 과제 추가 모달 / 添加作业弹窗 | 상세 기능 및 필터 / 过滤与排序等 |
+| :---: | :---: | :---: |
+| ![Dashboard](./screenshots/image1.png) | ![Add Task](./screenshots/image2.png) | ![Filters](./screenshots/image3.png) |
 
 ---
 *본 프로젝트는 AI와 인간의 유기적인 협업을 통해 창의적이고 완성도 높게 제작되었습니다.*
